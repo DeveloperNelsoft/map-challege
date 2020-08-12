@@ -4,6 +4,8 @@ import { Search } from 'react-bootstrap-icons';
 import MapImage from './MapImage';
 import getAxios from '../apiConnector';
 import {CityWeather} from '../interfaces/cityWeather';
+import credentials from '../credentials';
+
 
 interface CityWeatherProps {
     cityWeathers: CityWeather;
@@ -13,10 +15,7 @@ interface CityWeatherProps {
 const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
   const [searchTerm, setSearchTerm] =  useState('');
-//   const [searchResults, setSearchResults] = React.useState<Partial<CityWeatherProps>>([]);
-
-//   const [searchResults, setSearchResults] = useState<CityWeatherProps>({
-    const [searchResults, setSearchResults] = React.useState<CityWeather>({ 
+  const [searchResults, setSearchResults] = useState<CityWeather>({ 
     cityName: '',
     coord: {
         lon : 0,
@@ -55,8 +54,8 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
         let itemCity:CityWeather = {
             cityName: itemWeather.name,
             coord: {
-                lon : itemWeather.coord.lon,
-                lat : itemWeather.coord.lat,
+                lon : parseFloat(itemWeather.coord.lon),
+                lat : parseFloat(itemWeather.coord.lat),
             },
             attributes: {
                 temp : itemWeather.main.temp,
@@ -82,19 +81,39 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
     });
   };
 
+  const sGoogleMapUrl = `https://maps.googleapis.com/maps/api/js?v=3.exp&key=${credentials.mapKey}`;
+
     return(
             <Accordion defaultActiveKey="0">
                 <Card>
                     <Card.Header>
                         <Form inline className="mx-auto col-12">
-                            <FormControl type="text" placeholder="Postulante" className="col-9 col-md-6"
+                            <FormControl type="text" placeholder="City" className="col-9 col-md-6"
                             value={searchTerm} onChange={handleChange} />
                             <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
+                            {/* {isCityNotfound ? 
+                    <h1><p>City not found...</p></h1> :  <MapImage cityWeathers={searchResults}  />}
+                    
+                     // <div>
+        //     <div>
+        //         {`city : ${ cityWeathers?.cityName}  wind speed: ${ cityWeathers?.wind.speed}  wind deg: ${ cityWeathers?.wind.deg}`}
+        //     </div>
+        // </div>*/}
+                            <MapImage 
+                            cityWeathers={searchResults}  
 
+                            googleMapURL={sGoogleMapUrl}
+
+                            containerElement={<div  style={{height: '300px'}}></div>}
+
+                            mapElement={<div style={{height: '200%'}}></div>}
+
+                            loadingElement={<p>Cargando</p>}
+                            
+                            />
                         </Form>
                     </Card.Header>
-                    <h1> {isCityNotfound && <p>City not found...</p>}</h1>
-                    <MapImage cityWeathers={searchResults}  />
+                    
                 </Card>
             </Accordion>
    );

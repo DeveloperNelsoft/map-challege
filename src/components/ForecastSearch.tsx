@@ -1,9 +1,11 @@
-import React, { useState} from 'react';
+import React, { useEffect, useState, Fragment} from 'react'; 
 import { Accordion, Card, Button, Form, FormControl } from 'react-bootstrap';
 import { Search } from 'react-bootstrap-icons';
 import MapImage from './MapImage';
 import getAxios from '../apiConnector';
 import {CityWeather} from '../interfaces/cityWeather';
+import Select from 'react-select';
+
 
 interface CityWeatherProps {
     cityWeathers: CityWeather;
@@ -12,6 +14,12 @@ interface CityWeatherProps {
 const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
   const [searchTerm, setSearchTerm] =  useState('');
+  const [searchItemTerm, setSearchItemTerm] =  useState('');
+
+  const [mapCityList, setmapCityList] =  useState([]);
+
+  const [isCityNotfound, setCityNotfound] = useState(false);
+
   const [searchResults, setSearchResults] = useState<CityWeather>({ 
     cityName: '',
     coord: {
@@ -33,11 +41,54 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 });
 
 
-  const [isCityNotfound, setCityNotfound] = useState(false);
+    useEffect(() => {
+       
+        getLocalStorage();
+
+
+    }, [searchTerm]);
+
+    const getLocalStorage = () => {
+
+        let mapCityList = [{value:`${searchTerm}`} ];
+
+        let recoveredData = localStorage.getItem('mapCity')
+
+        if(recoveredData !== null){
+            let data = JSON.parse(recoveredData);
+            setmapCityList(data);
+        }
+
+    }
+
+    const saveInLocalStorage = (searchTerm: string) => {
+
+        let mapCityList = [{value:`${searchTerm}`} ];
+
+        let recoveredData = localStorage.getItem('mapCity')
+
+        if(recoveredData == null){
+            localStorage.setItem('mapCity', JSON.stringify(mapCityList))
+        } else {
+            let data = JSON.parse(recoveredData)
+            let newCity = {value: `${searchTerm}`};
+            data.push(newCity)
+            localStorage.setItem('mapCity', JSON.stringify(data))
+            setmapCityList(data);
+        }
+
+        console.log(localStorage.getItem('mapCity'));
+  }
+
 
   const handleChange = (event:any) => {
      setSearchTerm(event.target.value);
    };
+
+
+   const handleItemChange = (value:any) => {
+        setSearchItemTerm(value);
+   }
 
     const onBtnSearchClick = (event: any) => {
 
@@ -69,7 +120,7 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
         };
 
         setSearchResults(itemCity);
-
+        saveInLocalStorage(searchTerm);
         setCityNotfound(false);
     }).catch((error:any) => {
         console.log('error: ', error);
@@ -79,63 +130,81 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
   };
 
 
-  const saveInLocalStorage = (searchTerm: string) => {
-
-        // let carListFav = [
-        //     {name:'car1', id:1},
-        //     {name:'car2', id:2}
-        // ]
-
-        // let recoveredData = localStorage.getItem('car')
-
-        // if(recoveredData == null){
-        //     localStorage.setItem('car', JSON.stringify(carListFav))
-        // } else {
-        //     let data = JSON.parse(recoveredData)
-        //     let newCar = {name:'car3', id:3}
-        //     data.push(newCar)
-        //     localStorage.setItem('car', JSON.stringify(data))
-        // }
-
-        // console.log(localStorage.getItem('car'))
-  }
-
+ 
 
   const markers:any = [
     { 
         photo_id: 1, 
-        longitude: searchResults.coord.lon, 
-        latitude: searchResults.coord.lat, 
+        longitude: isCityNotfound ? 0 : searchResults.coord.lon, 
+        latitude: isCityNotfound ? 0 : searchResults.coord.lat, 
     }];
 
   const myMap:any = {
-    lng: searchResults.coord.lon, 
-    lat: searchResults.coord.lat,
-    cityName: searchResults.cityName,
-    windSpeed: searchResults.wind.speed,
-    windDeg: searchResults.wind.deg,
+    lng: isCityNotfound ? 0 : searchResults.coord.lon, 
+    lat: isCityNotfound ? 0 : searchResults.coord.lat,
+    cityName: isCityNotfound ? '' : searchResults.cityName,
+    windSpeed: isCityNotfound ? 0 : searchResults.wind.speed,
+    windDeg: isCityNotfound ? 0 : searchResults.wind.deg,
     zoom: 15
   };
+
 
 
     return(
             <Accordion defaultActiveKey="0">
                 <Card>
                     <Card.Header>
-                        <Form inline className="mx-auto col-12">
-                            <FormControl type="text" placeholder="City" className="col-9 col-md-6"
-                            value={searchTerm} onChange={handleChange} />
-                            <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
-                           
-                              
-                        </Form>
+
+                                     <Fragment>
+                                     {/* getting this component from https://react-select.com/home#fixed-options */}
+                                        {/* <Select
+                                        // className="basic-single"
+                                        // classNamePrefix="select"
+                                        // name="color"
+
+                                        value={valueSearchTerm}
+
+                                        options={mapCityList}
+                                        // onChange={(value) => {handleChange(value)}}
+
+                                        // inputValue={searchItemTerm}
+                                        // onInputChange={(value) => {handleItemChange(value)}}
+
+                                        //options={colourOptions}
+
+                                       
+                                        
+                                        isClearable={true}
+                                        isSearchable={true}
+                                        /> */}
+
+                                    <FormControl type="text" placeholder="City" className="col-9 col-md-6"
+                                                value={searchTerm} onChange={handleChange} />
+                                         <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
+                                         <ul>
+                                            {mapCityList.map((item: any) => (
+                                            <li>{item.value}</li>
+                                            ))}
+                                        </ul>
+                                    </Fragment>
                     </Card.Header>
                     <Card.Body>
                         <div>
                             {isCityNotfound ? 
                                 <h1><p>City not found...</p></h1> 
                                 :  
-                                <MapImage markers={markers} maps={myMap} />
+                                <div>
+                                    <div>
+                                            {`Weather information:  Temperature: ${searchResults.attributes.temp}
+                                            / Pressure: ${searchResults.attributes.pressure}
+                                            / Humidity: ${searchResults.attributes.humidity}
+                                            / Max temperature: ${searchResults.attributes.temp_max}
+                                            / Min temperature: ${searchResults.attributes.temp_min}`}
+                                    </div>
+                                    <div>
+                                        <MapImage markers={markers} maps={myMap} />
+                                    </div>
+                                </div>
                             }
                         </div>
                     </Card.Body>

@@ -6,6 +6,10 @@ import credentials from '../credentials';
 const myGoogleMapUrl = `https://maps.googleapis.com/maps/api/js?v=3.exp&key=${credentials.privateMapKey}`;
 
 
+/* 
+Getting some tips for consuming maps components from:
+https://developers.google.com/maps/documentation/javascript/examples/map-latlng-literal */
+
 const MapImage = compose<any,any>(
   withProps({
     googleMapURL: myGoogleMapUrl,

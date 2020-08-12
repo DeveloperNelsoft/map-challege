@@ -1,16 +1,54 @@
 import React, { useEffect, useState, Fragment} from 'react'; 
-import { Accordion, Card, Button, Form, FormControl } from 'react-bootstrap';
-import { Search } from 'react-bootstrap-icons';
+import { Accordion, 
+            Card, 
+            CardHeader,
+            CardMedia,
+            CardContent,
+            CardActions,
+            Button, 
+            FormControl,
+            Paper,
+            InputBase,
+            Divider,
+            IconButton,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import MenuIcon from '@material-ui/icons/Menu';
+import SearchIcon from '@material-ui/icons/Search';
+import DirectionsIcon from '@material-ui/icons/Directions';
 import MapImage from './MapImage';
 import getAxios from '../apiConnector';
 import {CityWeather} from '../interfaces/cityWeather';
-import Select from 'react-select';
+
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+      padding: '2px 4px',
+      display: 'flex',
+      alignItems: 'center',
+      width: 400,
+    },
+    input: {
+      marginLeft: theme.spacing(1),
+      flex: 1,
+    },
+    iconButton: {
+      padding: 10,
+    },
+    divider: {
+      height: 28,
+      margin: 4,
+    },
+  }));
+
 
 interface CityWeatherProps {
     cityWeathers: CityWeather;
 }
 
 const ForecastSearch: React.SFC<CityWeatherProps> = () => {
+
+ const classes = useStyles();
 
   const [searchTerm, setSearchTerm] =  useState('');
 
@@ -136,22 +174,27 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
 
     return(
-            <Accordion defaultActiveKey="0">
                 <Card>
-                    <Card.Header>
 
-                                     <Fragment>
-                                        <FormControl type="text" placeholder="City" className="col-9 col-md-6"
-                                                    value={searchTerm} onChange={handleChange} />
-                                            <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
-                                            <ul>
-                                                {mapCityList.map((item: any) => (
-                                                <li>{item.value}</li>
-                                                ))}
-                                            </ul>
-                                    </Fragment>
-                    </Card.Header>
-                    <Card.Body>
+                            <Paper component="form" className={classes.root}>
+                                <InputBase
+                                className={classes.input}
+                                placeholder="Search IT Crowd Maps"
+                                inputProps={{ 'aria-label': 'search google maps' }}
+                                value={searchTerm} onChange={handleChange}
+                                />
+                                <Button className="col-3 col-md-3"  onClick={(event: any) => {onBtnSearchClick(event)}} >
+                                    <SearchIcon />
+                                </Button>
+                                
+                            </Paper>
+
+                            <ul>
+                                {mapCityList.map((item: any) => (
+                                <li>{item.value}</li>
+                                ))}
+                            </ul>
+                    <CardContent>
                         <div>
                             {isCityNotfound ? 
                                 <h1><p>City not found...</p></h1> 
@@ -170,9 +213,8 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
                                 </div>
                             }
                         </div>
-                    </Card.Body>
+                    </CardContent>
                 </Card>
-            </Accordion>
    );
 };
 

@@ -43,20 +43,30 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
     useEffect(() => {
        
-        getLocalStorage();
+        let recoveredData = localStorage.getItem('mapCity')
+
+        if(recoveredData !== null){
+            let data = JSON.parse(recoveredData);
+            const results = data.filter((city:any) =>
+                city.value.toLowerCase().includes(searchTerm)
+              );
+            setmapCityList(results);
+        }
+        // getLocalStorage();
 
 
     }, [searchTerm]);
 
     const getLocalStorage = () => {
 
-        let mapCityList = [{value:`${searchTerm}`} ];
-
         let recoveredData = localStorage.getItem('mapCity')
 
         if(recoveredData !== null){
             let data = JSON.parse(recoveredData);
-            setmapCityList(data);
+            const results = data.filter((city:string) =>
+                city.toLowerCase().includes(searchTerm)
+              );
+            setmapCityList(results);
         }
 
     }
@@ -67,8 +77,9 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
         let recoveredData = localStorage.getItem('mapCity')
 
-        if(recoveredData == null){
-            localStorage.setItem('mapCity', JSON.stringify(mapCityList))
+        if(recoveredData === null){
+            localStorage.setItem('mapCity', JSON.stringify(mapCityList));
+            //setmapCityList(dt);
         } else {
             let data = JSON.parse(recoveredData)
             let newCity = {value: `${searchTerm}`};

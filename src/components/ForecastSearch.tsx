@@ -1,16 +1,13 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState} from 'react';
 import { Accordion, Card, Button, Form, FormControl } from 'react-bootstrap';
 import { Search } from 'react-bootstrap-icons';
 import MapImage from './MapImage';
 import getAxios from '../apiConnector';
 import {CityWeather} from '../interfaces/cityWeather';
-import credentials from '../credentials';
-
 
 interface CityWeatherProps {
     cityWeathers: CityWeather;
 }
-
 
 const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
@@ -81,7 +78,45 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
     });
   };
 
-  const sGoogleMapUrl = `https://maps.googleapis.com/maps/api/js?v=3.exp&key=${credentials.mapKey}`;
+
+  const saveInLocalStorage = (searchTerm: string) => {
+
+        // let carListFav = [
+        //     {name:'car1', id:1},
+        //     {name:'car2', id:2}
+        // ]
+
+        // let recoveredData = localStorage.getItem('car')
+
+        // if(recoveredData == null){
+        //     localStorage.setItem('car', JSON.stringify(carListFav))
+        // } else {
+        //     let data = JSON.parse(recoveredData)
+        //     let newCar = {name:'car3', id:3}
+        //     data.push(newCar)
+        //     localStorage.setItem('car', JSON.stringify(data))
+        // }
+
+        // console.log(localStorage.getItem('car'))
+  }
+
+
+  const markers:any = [
+    { 
+        photo_id: 1, 
+        longitude: searchResults.coord.lon, 
+        latitude: searchResults.coord.lat, 
+    }];
+
+  const myMap:any = {
+    lng: searchResults.coord.lon, 
+    lat: searchResults.coord.lat,
+    cityName: searchResults.cityName,
+    windSpeed: searchResults.wind.speed,
+    windDeg: searchResults.wind.deg,
+    zoom: 15
+  };
+
 
     return(
             <Accordion defaultActiveKey="0">
@@ -91,29 +126,19 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
                             <FormControl type="text" placeholder="City" className="col-9 col-md-6"
                             value={searchTerm} onChange={handleChange} />
                             <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
-                            {/* {isCityNotfound ? 
-                    <h1><p>City not found...</p></h1> :  <MapImage cityWeathers={searchResults}  />}
-                    
-                     // <div>
-        //     <div>
-        //         {`city : ${ cityWeathers?.cityName}  wind speed: ${ cityWeathers?.wind.speed}  wind deg: ${ cityWeathers?.wind.deg}`}
-        //     </div>
-        // </div>*/}
-                            <MapImage 
-                            cityWeathers={searchResults}  
-
-                            googleMapURL={sGoogleMapUrl}
-
-                            containerElement={<div  style={{height: '300px'}}></div>}
-
-                            mapElement={<div style={{height: '200%'}}></div>}
-
-                            loadingElement={<p>Cargando</p>}
-                            
-                            />
+                           
+                              
                         </Form>
                     </Card.Header>
-                    
+                    <Card.Body>
+                        <div>
+                            {isCityNotfound ? 
+                                <h1><p>City not found...</p></h1> 
+                                :  
+                                <MapImage markers={markers} maps={myMap} />
+                            }
+                        </div>
+                    </Card.Body>
                 </Card>
             </Accordion>
    );

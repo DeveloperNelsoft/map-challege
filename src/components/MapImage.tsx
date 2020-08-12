@@ -1,62 +1,35 @@
-import React, {Component} from 'react';
-import {CityWeather} from '../interfaces/cityWeather';
-import {
-    GoogleMap,
-    withScriptjs,
-    withGoogleMap,
-    Marker
+import React from 'react';
+import { compose, withProps } from 'recompose';
+import { withScriptjs, withGoogleMap, GoogleMap, Marker, InfoWindow } from 'react-google-maps';
+import credentials from '../credentials';
 
-} from 'react-google-maps';
-
-interface CityWeatherProps {
-    cityWeathers: CityWeather;
-}
-// resource for google map setting and informtion: https://www.youtube.com/watch?v=PuwGdowtm5s
-
-const MapImage: React.SFC<CityWeatherProps> = (props: CityWeatherProps) => {
-
-    const { cityWeathers   } = props;
-
-    const latlng = {
-        lat: cityWeathers.coord.lat,
-        lng: cityWeathers.coord.lon
-      };
-
-      console.log(`latlng.lat : ${latlng.lat} / latlng.lng : ${latlng.lng} `);
-      const pos = {lat: latlng.lat, lng: latlng.lng};
-
-      return (
-        <GoogleMap defaultZoom={15}  defaultCenter={pos}  >
-            <Marker key={1200}  position={pos} />
-        </GoogleMap>
-    );
-
-};
-
-export default withScriptjs(
-    withGoogleMap( (props: CityWeatherProps) => <MapImage {...props}/> ));
+const myGoogleMapUrl = `https://maps.googleapis.com/maps/api/js?v=3.exp&key=${credentials.privateMapKey}`;
 
 
+const MapImage = compose<any,any>(
+  withProps({
+    googleMapURL: myGoogleMapUrl,
+    loadingElement: <div style={{ height: '80%' }} />,
+    containerElement: <div style={{ height: '300px' }} />,
+    mapElement: <div style={{ height: '200%' }} />
+  }),
+  withScriptjs,
+  withGoogleMap
+)(props => (
+  <GoogleMap
+    zoom={props.maps.zoom}
+    center={{ lat: props.maps.lat, lng: props.maps.lng }}
+    heading={5}
+  >
+      {props.markers.map((marker:any) => (
+        <Marker key={marker.photo_id} position={{ lat: marker.latitude, lng: marker.longitude }} />
+      ))}
+    <Marker position={{ lat: props.maps.lat, lng: props.maps.lng }}>
+      <InfoWindow>
+      <p>{!props.maps.cityName.length ? 'city?' : `city: ${props.maps.cityName} - wind Speed: ${props.maps.windSpeed}  - wind Deg: ${props.maps.windDeg} `}</p>
+      </InfoWindow>
+    </Marker>
+  </GoogleMap>
+));
 
-
-
-// const MapImage  = withScriptjs(
-//     withGoogleMap((props: CityWeatherProps) => {
-
-//     const { cityWeathers } = props;
-
-//         return (
-
-//             <GoogleMap defaultZoom={15}  defaultCenter={{ lat: cityWeathers.coord.lat,
-//                 lng: cityWeathers.coord.lon}}  > 
-               
-               
-//                 <Marker key={1200}  position={{ lat: cityWeathers.coord.lat,
-//                         lng: cityWeathers.coord.lon}} />
-//             </GoogleMap>
-//         );
-//     })
-// );
-
-// export default  MapImage;
-
+export default MapImage;

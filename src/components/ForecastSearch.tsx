@@ -6,7 +6,6 @@ import getAxios from '../apiConnector';
 import {CityWeather} from '../interfaces/cityWeather';
 import Select from 'react-select';
 
-
 interface CityWeatherProps {
     cityWeathers: CityWeather;
 }
@@ -14,7 +13,6 @@ interface CityWeatherProps {
 const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
   const [searchTerm, setSearchTerm] =  useState('');
-  const [searchItemTerm, setSearchItemTerm] =  useState('');
 
   const [mapCityList, setmapCityList] =  useState([]);
 
@@ -52,24 +50,9 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
               );
             setmapCityList(results);
         }
-        // getLocalStorage();
-
 
     }, [searchTerm]);
 
-    const getLocalStorage = () => {
-
-        let recoveredData = localStorage.getItem('mapCity')
-
-        if(recoveredData !== null){
-            let data = JSON.parse(recoveredData);
-            const results = data.filter((city:string) =>
-                city.toLowerCase().includes(searchTerm)
-              );
-            setmapCityList(results);
-        }
-
-    }
 
     const saveInLocalStorage = (searchTerm: string) => {
 
@@ -79,7 +62,6 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
 
         if(recoveredData === null){
             localStorage.setItem('mapCity', JSON.stringify(mapCityList));
-            //setmapCityList(dt);
         } else {
             let data = JSON.parse(recoveredData)
             let newCity = {value: `${searchTerm}`};
@@ -91,15 +73,9 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
         console.log(localStorage.getItem('mapCity'));
   }
 
-
   const handleChange = (event:any) => {
      setSearchTerm(event.target.value);
    };
-
-
-   const handleItemChange = (value:any) => {
-        setSearchItemTerm(value);
-   }
 
     const onBtnSearchClick = (event: any) => {
 
@@ -139,8 +115,6 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
         setSearchResults(error.message);
     });
   };
-
-
  
 
   const markers:any = [
@@ -167,36 +141,14 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
                     <Card.Header>
 
                                      <Fragment>
-                                     {/* getting this component from https://react-select.com/home#fixed-options */}
-                                        {/* <Select
-                                        // className="basic-single"
-                                        // classNamePrefix="select"
-                                        // name="color"
-
-                                        value={valueSearchTerm}
-
-                                        options={mapCityList}
-                                        // onChange={(value) => {handleChange(value)}}
-
-                                        // inputValue={searchItemTerm}
-                                        // onInputChange={(value) => {handleItemChange(value)}}
-
-                                        //options={colourOptions}
-
-                                       
-                                        
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        /> */}
-
-                                    <FormControl type="text" placeholder="City" className="col-9 col-md-6"
-                                                value={searchTerm} onChange={handleChange} />
-                                         <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
-                                         <ul>
-                                            {mapCityList.map((item: any) => (
-                                            <li>{item.value}</li>
-                                            ))}
-                                        </ul>
+                                        <FormControl type="text" placeholder="City" className="col-9 col-md-6"
+                                                    value={searchTerm} onChange={handleChange} />
+                                            <Button className="col-3 col-md-3" variant="outline-primary" onClick={(event: any) => {onBtnSearchClick(event)}} ><Search /></Button>
+                                            <ul>
+                                                {mapCityList.map((item: any) => (
+                                                <li>{item.value}</li>
+                                                ))}
+                                            </ul>
                                     </Fragment>
                     </Card.Header>
                     <Card.Body>

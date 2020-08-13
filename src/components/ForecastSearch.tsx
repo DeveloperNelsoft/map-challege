@@ -13,9 +13,11 @@ import { Accordion,
             InputBase,
             Divider,
             IconButton,
+            TextField,
             Typography,
 
 } from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from "clsx";
 import MenuIcon from '@material-ui/icons/Menu';
@@ -55,11 +57,8 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: yellow[900],
       },
     input: {
-        marginLeft: theme.spacing(1),
-       flex: 1,
-       width:500,
+       width: '300px',
        height: '30px',
-       border: '1px solid ',
     },
     btn: {
        width: 20,
@@ -78,6 +77,26 @@ const useStyles = makeStyles((theme) => ({
     iconButton: {
         padding: 20,
     },
+    divLeft: {
+        float: 'left',
+        width: '300px',
+        textalign: 'right',
+        margin: '2px 10px',
+        display: 'inline',
+      },
+      divRight: {
+        float: 'left',
+        width: '300px',
+        textalign: 'left',
+        margin: '35px 10px',
+        display: 'inline',
+      },
+      divMap: {
+        float: 'left',
+        width: '1500px',
+        textalign: 'left',
+        display: 'inline',
+      },
   }));
 
 interface CityWeatherProps {
@@ -215,6 +234,19 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
     zoom: 15
   };
 
+  const defaultProps = {
+    options: mapCityList,
+    getOptionLabel: (option:any) => option.value
+  };
+
+  const flatProps = {
+    options: mapCityList.map((option:any) => option.value)
+  };
+
+  const [value, setValue] = React.useState(null);
+
+  /* Visual design and components by https://material-ui.com/es/api/autocomplete/ */
+
                     return (
                         <Card className={classes.root}>
                         <CardHeader
@@ -227,22 +259,44 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
                             subheader={`${new Date().toUTCString()}`}
                         />
                         <CardContent>
-                                    <InputBase
+                                    {/* <InputBase
                                     className={classes.input}
                                     placeholder="Search IT Crowd Maps"
                                     inputProps={{ 'aria-label': 'search google maps' }}
                                     value={searchTerm} onChange={handleChange}
-                                    />
-                                    <Button className={classes.searchBtn}  onClick={(event: any) => {onBtnSearchClick(event)}} >
-                                        <SearchIcon />
-                                    </Button>
-                                    
+                                    /> */}
+                                     {/* <div style={{ width: 1200 }}> */}
+                                     <div style={{  }}>
+                                        <div className={classes.divLeft} >
+                                            <Autocomplete
+                                                {...defaultProps}
+                                                id="controlled-demo"
+                                                value={value}
+                                                onChange={(event, newValue) => {
+                                                alert(newValue.value);
+                                                setValue(newValue);
+                                                }}
+                                                renderInput={params => (
+                                                <TextField {...params} label="search by city" margin="normal" fullWidth />
+                                                )}
+                                            />
+                                            </div>
+                                            <div   className={classes.divRight} >
+                                                        <Button className={classes.searchBtn}  onClick={(event: any) =>               {onBtnSearchClick(event)}} >
+                                                        <SearchIcon />
+                                                    </Button>
+                                                    <span > </span>
+                                                    <Button className={classes.searchBtn}  
+                                                        onClick={() => setValue(null)} >Delete city
+                                                            </Button>
+                                            </div>
+                                        </div>
 
-                                <ul>
+                                {/* <ul>
                                     {mapCityList.map((item: any) => (
                                     <li><Button   className={classes.btn} > Delete </Button> {item.value}</li>
                                     ))}
-                                </ul>
+                                </ul> */}
                         </CardContent>
                         <CardActions disableSpacing>
                             Weather information! - below -
@@ -257,22 +311,24 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
                             <ExpandMoreIcon />
                             </IconButton>
                         </CardActions>
-                        <Collapse in={expanded} timeout="auto" unmountOnExit>
-                            <CardContent>
-                                <div>
-                                    {isCityNotfound ? 
-                                        <Typography paragraph><h1><p>City not found...</p></h1> </Typography>
-                                        :  
-                                        <div>
-                                             <Typography paragraph>
-                                                    {` Temperature: ${searchResults.attributes.temp} Pressure: ${searchResults.attributes.pressure} Humidity: ${searchResults.attributes.humidity} Max temperature: ${searchResults.attributes.temp_max} Min temperature: ${searchResults.attributes.temp_min}`}
-                                            </Typography>
-                                            <MapImage markers={markers} maps={myMap} />
-                                        </div>
-                                    }
-                                </div>
-                            </CardContent>
-                        </Collapse>
+                        <div className={classes.divMap} >
+                            <Collapse in={expanded} timeout="auto" unmountOnExit>
+                                <CardContent>
+                                    <div>
+                                        {isCityNotfound ? 
+                                            <Typography paragraph><h1><p>City not found...</p></h1> </Typography>
+                                            :  
+                                            <div>
+                                                <Typography paragraph>
+                                                        {` Temperature: ${searchResults.attributes.temp} Pressure: ${searchResults.attributes.pressure} Humidity: ${searchResults.attributes.humidity} Max temperature: ${searchResults.attributes.temp_max} Min temperature: ${searchResults.attributes.temp_min}`}
+                                                </Typography>
+                                                <MapImage markers={markers} maps={myMap} />
+                                            </div>
+                                        }
+                                    </div>
+                                </CardContent>
+                            </Collapse>
+                        </div>
                         </Card>
                     );
 };

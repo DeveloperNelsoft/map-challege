@@ -1,5 +1,5 @@
-import React, { useEffect, useState, Fragment} from 'react'; 
-import { Accordion, 
+import React, { useEffect, useState} from 'react'; 
+import { 
          Avatar,
             Card, 
             CardHeader,
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     },
     media: {
       height: 0,
-      paddingTop: "20.0%" // 16:9
+      paddingTop: "20.0%"
     },
     expand: {
       transform: "rotate(0deg)",
@@ -152,31 +152,64 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
             setmapCityList(results);
         }
 
-    }, [searchTerm]);
+    }, []);
+
+    const defaultCityProps = {
+        options: mapCityList,
+        getOptionLabel: (option:any) => option.value
+    };
 
 
     const saveInLocalStorage = (searchTerm: string) => {
 
-        let mapCityList = [{value:`${searchTerm}`} ];
+        let mapCityList = [{value:`${searchTerm.toLowerCase()}`}];
 
         let recoveredData = localStorage.getItem('mapCity')
 
         if(recoveredData === null){
             localStorage.setItem('mapCity', JSON.stringify(mapCityList));
+            setmapCityList(JSON.parse(JSON.stringify(mapCityList)));
         } else {
             let data = JSON.parse(recoveredData)
-            let newCity = {value: `${searchTerm}`};
-            data.push(newCity)
-            localStorage.setItem('mapCity', JSON.stringify(data))
+            if(data.find((index: any) => index.value === searchTerm.toLowerCase()) === undefined){
+                
+                let newCity = {value: `${searchTerm.toLowerCase()}`};
+                if(data.length === 5){
+                    data.shift();
+                }
+                data.push(newCity);
+                localStorage.setItem('mapCity', JSON.stringify(data))
+            }
             setmapCityList(data);
         }
-
-        console.log(localStorage.getItem('mapCity'));
+        console.log(`mapCity values in localstorage: ${localStorage.getItem('mapCity')}`);
   }
 
-  const handleChange = (event:any) => {
-     setSearchTerm(event.target.value);
+  const handleChange = (valueCity:any) => {
+
+      if(valueCity !== null){
+        setSearchTerm(valueCity);
+      }
+     
    };
+
+   const deleteCurrentCity = () => {
+       
+       let recoveredData = localStorage.getItem('mapCity')
+       if(recoveredData !== null){
+            let data = JSON.parse(recoveredData);
+
+            if(data.find((index: any) => index.value === searchTerm.toLowerCase()) !== undefined){
+            
+                data = data.filter((index: any) => index.value !== searchTerm.toLowerCase())
+                localStorage.setItem('mapCity', JSON.stringify(data))
+                setmapCityList(data);
+                alert(`city ${searchTerm}  has been deleted.`);
+            }
+       
+        }
+
+   }
 
     const onBtnSearchClick = (event: any) => {
 
@@ -234,16 +267,6 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
     zoom: 15
   };
 
-  const defaultProps = {
-    options: mapCityList,
-    getOptionLabel: (option:any) => option.value
-  };
-
-  const flatProps = {
-    options: mapCityList.map((option:any) => option.value)
-  };
-
-  const [value, setValue] = React.useState(null);
 
   /* Visual design and components by https://material-ui.com/es/api/autocomplete/ */
 
@@ -259,44 +282,37 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
                             subheader={`${new Date().toUTCString()}`}
                         />
                         <CardContent>
-                                    {/* <InputBase
-                                    className={classes.input}
-                                    placeholder="Search IT Crowd Maps"
-                                    inputProps={{ 'aria-label': 'search google maps' }}
-                                    value={searchTerm} onChange={handleChange}
-                                    /> */}
-                                     {/* <div style={{ width: 1200 }}> */}
                                      <div style={{  }}>
                                         <div className={classes.divLeft} >
                                             <Autocomplete
-                                                {...defaultProps}
-                                                id="controlled-demo"
-                                                value={value}
-                                                onChange={(event, newValue) => {
-                                                alert(newValue.value);
-                                                setValue(newValue);
-                                                }}
+                                                {...defaultCityProps}
+                                                id="cityDropDown"
+                                                //value={searchTerm}
+                                                onChange={(event: any, newValue: any) => 
+                                                     newValue !== null ? handleChange(newValue.value) : ''
+                                                }
                                                 renderInput={params => (
-                                                <TextField {...params} label="search by city" margin="normal" fullWidth />
+                                                    <TextField {...params} label="For new city, write and press Enter" margin="normal" fullWidth
+                                                    onKeyDown={(e:any) => {
+                                                        if (e.keyCode === 13 && e.target.value) {
+                                                            handleChange(e.target.value)
+                                                        }
+                                                    }}
+                                                    />
                                                 )}
                                             />
                                             </div>
                                             <div   className={classes.divRight} >
                                                         <Button className={classes.searchBtn}  onClick={(event: any) =>               {onBtnSearchClick(event)}} >
+                                                            Search
                                                         <SearchIcon />
                                                     </Button>
                                                     <span > </span>
                                                     <Button className={classes.searchBtn}  
-                                                        onClick={() => setValue(null)} >Delete city
+                                                        onClick={deleteCurrentCity} >Delete this city
                                                             </Button>
                                             </div>
                                         </div>
-
-                                {/* <ul>
-                                    {mapCityList.map((item: any) => (
-                                    <li><Button   className={classes.btn} > Delete </Button> {item.value}</li>
-                                    ))}
-                                </ul> */}
                         </CardContent>
                         <CardActions disableSpacing>
                             Weather information! - below -

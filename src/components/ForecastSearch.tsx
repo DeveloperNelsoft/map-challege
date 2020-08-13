@@ -1,46 +1,84 @@
 import React, { useEffect, useState, Fragment} from 'react'; 
 import { Accordion, 
+         Avatar,
             Card, 
             CardHeader,
             CardMedia,
             CardContent,
             CardActions,
+            Collapse,
             Button, 
             FormControl,
             Paper,
             InputBase,
             Divider,
             IconButton,
+            Typography,
+
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import clsx from "clsx";
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import DirectionsIcon from '@material-ui/icons/Directions';
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 import MapImage from './MapImage';
 import getAxios from '../apiConnector';
 import {CityWeather} from '../interfaces/cityWeather';
+import { yellow, blue } from '@material-ui/core/colors';
 
 
 const useStyles = makeStyles((theme) => ({
     root: {
-      padding: '2px 4px',
-      display: 'flex',
+      maxWidth: 1500,
+      maxHeight: 1500,
+      marginTop:'2%',
+      marginLeft:'10%',
       alignItems: 'center',
-      width: 400,
     },
+    media: {
+      height: 0,
+      paddingTop: "20.0%" // 16:9
+    },
+    expand: {
+      transform: "rotate(0deg)",
+      marginLeft: "auto",
+      transition: theme.transitions.create("transform", {
+        duration: theme.transitions.duration.shortest
+      })
+    },
+    expandOpen: {
+      transform: "rotate(270deg)"
+    },
+    avatar: {
+        backgroundColor: yellow[900],
+      },
     input: {
-      marginLeft: theme.spacing(1),
-      flex: 1,
+        marginLeft: theme.spacing(1),
+       flex: 1,
+       width:500,
+       height: '30px',
+       border: '1px solid ',
     },
+    btn: {
+       width: 20,
+       height: 20,
+       border: '1px solid',
+       fontSize: '8px',
+       borderBlockColor: 'grey',
+    },
+    searchBtn: {
+        width: '40px',
+        height: '30px',
+        border: '1px solid',
+        fontSize: '8px',
+        borderBlockColor: 'grey',
+     },
     iconButton: {
-      padding: 10,
-    },
-    divider: {
-      height: 28,
-      margin: 4,
+        padding: 20,
     },
   }));
-
 
 interface CityWeatherProps {
     cityWeathers: CityWeather;
@@ -74,7 +112,13 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
         speed : 0,
         deg : 0,
     },
-});
+    });
+
+    const [expanded, setExpanded] = React.useState(false);
+
+    const handleExpandClick = () => {
+      setExpanded(!expanded);
+    };
 
 
     useEffect(() => {
@@ -171,51 +215,66 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
     zoom: 15
   };
 
-
-
-    return(
-                <Card>
-
-                            <Paper component="form" className={classes.root}>
-                                <InputBase
-                                className={classes.input}
-                                placeholder="Search IT Crowd Maps"
-                                inputProps={{ 'aria-label': 'search google maps' }}
-                                value={searchTerm} onChange={handleChange}
-                                />
-                                <Button className="col-3 col-md-3"  onClick={(event: any) => {onBtnSearchClick(event)}} >
-                                    <SearchIcon />
-                                </Button>
-                                
-                            </Paper>
-
-                            <ul>
-                                {mapCityList.map((item: any) => (
-                                <li>{item.value}</li>
-                                ))}
-                            </ul>
-                    <CardContent>
-                        <div>
-                            {isCityNotfound ? 
-                                <h1><p>City not found...</p></h1> 
-                                :  
-                                <div>
-                                    <div>
-                                            {`Weather information:  Temperature: ${searchResults.attributes.temp}
-                                            / Pressure: ${searchResults.attributes.pressure}
-                                            / Humidity: ${searchResults.attributes.humidity}
-                                            / Max temperature: ${searchResults.attributes.temp_max}
-                                            / Min temperature: ${searchResults.attributes.temp_min}`}
-                                    </div>
-                                    <div>
-                                        <MapImage markers={markers} maps={myMap} />
-                                    </div>
-                                </div>
+                    return (
+                        <Card className={classes.root}>
+                        <CardHeader
+                            avatar={
+                            <Avatar aria-label="recipe" className={classes.avatar}>
+                                CROWD
+                            </Avatar>
                             }
-                        </div>
-                    </CardContent>
-                </Card>
-   );
+                            title="IT Crowd Search Geo Location"
+                            subheader={`${new Date().toUTCString()}`}
+                        />
+                        <CardContent>
+                                    <InputBase
+                                    className={classes.input}
+                                    placeholder="Search IT Crowd Maps"
+                                    inputProps={{ 'aria-label': 'search google maps' }}
+                                    value={searchTerm} onChange={handleChange}
+                                    />
+                                    <Button className={classes.searchBtn}  onClick={(event: any) => {onBtnSearchClick(event)}} >
+                                        <SearchIcon />
+                                    </Button>
+                                    
+
+                                <ul>
+                                    {mapCityList.map((item: any) => (
+                                    <li><Button   className={classes.btn} > Delete </Button> {item.value}</li>
+                                    ))}
+                                </ul>
+                        </CardContent>
+                        <CardActions disableSpacing>
+                            Weather information! - below -
+                            <IconButton
+                            className={clsx(classes.expand, {
+                                [classes.expandOpen]: expanded
+                            })}
+                            onClick={handleExpandClick}
+                            aria-expanded={expanded}
+                            aria-label="show more"
+                            >
+                            <ExpandMoreIcon />
+                            </IconButton>
+                        </CardActions>
+                        <Collapse in={expanded} timeout="auto" unmountOnExit>
+                            <CardContent>
+                                <div>
+                                    {isCityNotfound ? 
+                                        <Typography paragraph><h1><p>City not found...</p></h1> </Typography>
+                                        :  
+                                        <div>
+                                             <Typography paragraph>
+                                                    {` Temperature: ${searchResults.attributes.temp} Pressure: ${searchResults.attributes.pressure} Humidity: ${searchResults.attributes.humidity} Max temperature: ${searchResults.attributes.temp_max} Min temperature: ${searchResults.attributes.temp_min}`}
+                                            </Typography>
+                                            <MapImage markers={markers} maps={myMap} />
+                                        </div>
+                                    }
+                                </div>
+                            </CardContent>
+                        </Collapse>
+                        </Card>
+                    );
 };
 
 export default ForecastSearch;

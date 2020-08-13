@@ -13,9 +13,9 @@ https://developers.google.com/maps/documentation/javascript/examples/map-latlng-
 const MapImage = compose<any,any>(
   withProps({
     googleMapURL: myGoogleMapUrl,
-    loadingElement: <div style={{ height: '80%' }} />,
-    containerElement: <div style={{ height: '300px' }} />,
-    mapElement: <div style={{ height: '200%' }} />
+    loadingElement: <div style={{ height: '300%' }} />,
+    containerElement: <div style={{ height: '500px' }} />,
+    mapElement: <div style={{ height: '100%' }} />
   }),
   withScriptjs,
   withGoogleMap

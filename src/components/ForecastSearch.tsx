@@ -125,11 +125,6 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
     }
   };
 
-  const defaultCityProps = {
-    options: mapCityList,
-    getOptionLabel: (option: any) => option.value,
-  };
-
   const saveInLocalStorage = (searchTerm: string) => {
     let mapCityList = [{ value: `${searchTerm.toLowerCase()}` }];
 
@@ -248,9 +243,10 @@ const ForecastSearch: React.SFC<CityWeatherProps> = () => {
         <div style={{}}>
           <div className={classes.divLeft}>
             <Autocomplete
-              {...defaultCityProps}
+              options={mapCityList}
+              getOptionLabel={(option: any) => option.value}
               id="cityDropDown"
-              value={mapCityList}
+              value={searchTerm}
               onChange={(event: any, newValue: any) => (newValue !== null ? handleChange(newValue.value) : '')}
               renderInput={(params) => (
                 <TextField

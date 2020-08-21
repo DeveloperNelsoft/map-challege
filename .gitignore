@@ -18,5 +18,5 @@ yarn-error.log*
 
 #private credential:
 
-credentials.ts
+#credentials.ts
 
